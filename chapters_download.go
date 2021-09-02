@@ -9,11 +9,11 @@ const (
 	PAGE_LIMIT = 200
 )
 
-func (chapters ChapterList) BatchDownload(dataSaver bool, prefix string) {
+func (chapters ChapterList) Download(dataSaver bool, prefix string) {
 	commonBatchDownload(chapters, dataSaver, prefix, false, "")
 }
 
-func (chapters ChapterList) BatchDownloadZip(dataSaver bool, prefix string, ext string) {
+func (chapters ChapterList) DownloadAsZip(dataSaver bool, prefix string, ext string) {
 	commonBatchDownload(chapters, dataSaver, prefix, true, ext)
 }
 
