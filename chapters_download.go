@@ -6,13 +6,19 @@ import (
 )
 
 const (
+	// This constant specifies the limit number of image downloading at the same time. Since
+	// too many downloads happen at a time can lead to timeout or network error.
 	PAGE_LIMIT = 200
 )
 
+// Method Download downloads list of chapters. They will be named with format <prefix><chapter_number>.
+// 'prefix' can have parent folder, it will be created if not exist.
 func (chapters ChapterList) Download(dataSaver bool, prefix string) {
 	commonBatchDownload(chapters, dataSaver, prefix, false, "")
 }
 
+// Method Download downloads list of chapters and zip them. They will be named with
+// format <prefix><chapter_number>.<ext>. 'prefix' can have parent folder, it will be created if not exist.
 func (chapters ChapterList) DownloadAsZip(dataSaver bool, prefix string, ext string) {
 	commonBatchDownload(chapters, dataSaver, prefix, true, ext)
 }

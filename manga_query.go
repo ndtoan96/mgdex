@@ -8,6 +8,8 @@ import (
 	"net/url"
 )
 
+// MangaData represents data of manga gotten from manga feed api of mangadex. It does not
+// include information of author, artist,... since it only serves the purpose of getting chapters data
 type MangaData struct{ Results []ChapterData }
 
 type mangaQuery struct {
@@ -19,6 +21,7 @@ type mangaQuery struct {
 	includeGroup bool
 }
 
+// MangaQuery returns a query params builder
 func MangaQuery(id string) *mangaQuery {
 	return &mangaQuery{
 		id:           id,
@@ -30,32 +33,39 @@ func MangaQuery(id string) *mangaQuery {
 	}
 }
 
+// Language specifies language of manga, default is "en"
 func (q mangaQuery) Language(lang string) *mangaQuery {
 	q.lang = lang
 	return &q
 }
 
+// Limit specifies maximum number of chapter data gotten from one query, default is 100
 func (q mangaQuery) Limit(limit int) *mangaQuery {
 	q.limit = limit
 	return &q
 }
 
+// Offset specifies offset value of chapter data gotten from the query, default is 0
 func (q mangaQuery) Offset(offset int) *mangaQuery {
 	q.offset = offset
 	return &q
 }
 
+// Order specifies order of chapter data (by chapter number) gotten from the query, only
+// accepts two values "asc" and "desc", default is "asc".
 func (q mangaQuery) Order(order string) *mangaQuery {
 	q.order = order
 	return &q
 }
 
+// IncludeScanlationGroup enabled translation_group data gotten from the query.
 func (q mangaQuery) IncludeScanlationGroup() *mangaQuery {
 	q.includeGroup = true
 	return &q
 }
 
-func (q mangaQuery) verify() error {
+// Verify checks values of query params.
+func (q mangaQuery) Verify() error {
 	if q.lang == "" {
 		return errors.New("language is empty")
 	}
@@ -71,8 +81,9 @@ func (q mangaQuery) verify() error {
 	return nil
 }
 
+// GetManga returns manga data gotten from manga feed api of mangadex
 func (q mangaQuery) GetManga() (*MangaData, error) {
-	err := q.verify()
+	err := q.Verify()
 	if err != nil {
 		return nil, err
 	}

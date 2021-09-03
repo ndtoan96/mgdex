@@ -1,3 +1,4 @@
+// Package mgdex provides interfaces to get information as well as download chapters and manga from mangadex.
 package mgdex
 
 import (
@@ -10,6 +11,8 @@ import (
 	"github.com/ndtoan96/imgdl"
 )
 
+// A ChapterData represents data of chapter gotten from mangadex api. It does not
+// include all possible information, only the ones commonly used.
 type ChapterData struct {
 	Data struct {
 		Id         string
@@ -30,6 +33,7 @@ type serverData struct {
 	BaseUrl string
 }
 
+// GetChapter send request to mangadex api and get back chapter data.
 func GetChapter(id string) (*ChapterData, error) {
 	// Request chapter via api
 	url := fmt.Sprintf("https://api.mangadex.org/chapter/%v", id)
@@ -51,18 +55,25 @@ func GetChapter(id string) (*ChapterData, error) {
 	return &chapter, nil
 }
 
+// Volume returns volume number of chapter, default is empty string.
 func (chapter ChapterData) Volume() string {
 	return chapter.Data.Attributes.Volume
 }
 
+// Chapter returns chapter number of chapter, default is empty string.
 func (chapter ChapterData) Chapter() string {
 	return chapter.Data.Attributes.Chapter
 }
 
+// Title returns title of chapter, default is empty string.
 func (chapter ChapterData) Title() string {
 	return chapter.Data.Attributes.Title
 }
 
+// ScanlationGroup returns scanlation group of chapter. Note that this requires
+// an additional parameter in chapter request and the function GetChapter does not
+// implements it. So this function is only useful with ChapterData gotten from
+// manga query where includeGroup is enabled.
 func (chapter ChapterData) ScanlationGroup() string {
 	for _, rel := range chapter.Data.Relationships {
 		if rel["type"].(string) == "scanlation_group" {
@@ -72,6 +83,7 @@ func (chapter ChapterData) ScanlationGroup() string {
 	return ""
 }
 
+// GetPageUrls returns urls for all pages in the chapter.
 func (chapter ChapterData) GetPageUrls(dataSaver bool) ([]string, error) {
 	// Get base url
 	serverUrl := fmt.Sprintf("https://api.mangadex.org/at-home/server/%v", chapter.Data.Id)
@@ -106,6 +118,8 @@ func (chapter ChapterData) GetPageUrls(dataSaver bool) ([]string, error) {
 	return urls, nil
 }
 
+// Download downloads the chapter and save to folder specified by 'path'.
+// If 'path' is empty, current folder will be used.
 func (chapter ChapterData) Download(dataSaver bool, path string) error {
 	// Get urls
 	urls, err := chapter.GetPageUrls(dataSaver)
@@ -121,6 +135,7 @@ func (chapter ChapterData) Download(dataSaver bool, path string) error {
 	return nil
 }
 
+// DownloadAsZip downloads the chapter and save to zip file specified by 'path'.
 func (chapter ChapterData) DownloadAsZip(dataSaver bool, path string) error {
 	// Get page urls
 	urls, err := chapter.GetPageUrls(dataSaver)
