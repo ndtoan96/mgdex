@@ -49,6 +49,9 @@ func GetImageData(url string) (string, *io.ReadCloser, error) {
 // will be created and image extension is guess from MIME type.
 func DownloadImgage(url string, path string) error {
 	ext, data, err := GetImageData(url)
+	if err != nil {
+		return err
+	}
 	defer (*data).Close()
 
 	// Create parent folder
