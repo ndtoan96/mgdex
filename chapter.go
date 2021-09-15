@@ -13,20 +13,19 @@ import (
 
 // A ChapterData represents data of chapter gotten from mangadex api. It does not
 // include all possible information, only the ones commonly used.
+
 type ChapterData struct {
-	Data struct {
-		Id         string
-		Attributes struct {
-			Volume             string
-			Chapter            string
-			Title              string
-			Hash               string
-			Data               []string
-			DataSaver          []string
-			TranslatedLanguage string
-		}
-		Relationships []map[string]interface{}
+	Id         string
+	Attributes struct {
+		Volume             string
+		Chapter            string
+		Title              string
+		Hash               string
+		Data               []string
+		DataSaver          []string
+		TranslatedLanguage string
 	}
+	Relationships []map[string]interface{}
 }
 
 type serverData struct {
@@ -47,35 +46,55 @@ func GetChapter(id string) (*ChapterData, error) {
 	}
 
 	// Deserialize chapter json response to struct
-	var chapter ChapterData
+	var chapter struct{ Data ChapterData }
 	err = json.NewDecoder(resp.Body).Decode(&chapter)
 	if err != nil {
 		return nil, err
 	}
-	return &chapter, nil
+	return &chapter.Data, nil
 }
 
-// Volume returns volume number of chapter, default is empty string.
-func (chapter ChapterData) Volume() string {
-	return chapter.Data.Attributes.Volume
+// GetId returns chapter id
+func (chapter ChapterData) GetId() string {
+	return chapter.Id
 }
 
-// Chapter returns chapter number of chapter, default is empty string.
-func (chapter ChapterData) Chapter() string {
-	return chapter.Data.Attributes.Chapter
+// GetPageNames return file name of every pages in the chapter database, file name can be combined with server baseUrl
+// to form the url of the page
+func (chapter ChapterData) GetPageNames(dataSaver bool) []string {
+	if dataSaver {
+		return chapter.Attributes.DataSaver
+	} else {
+		return chapter.Attributes.Data
+	}
 }
 
-// Title returns title of chapter, default is empty string.
-func (chapter ChapterData) Title() string {
-	return chapter.Data.Attributes.Title
+// GetVolume returns volume number of chapter, default is empty string.
+func (chapter ChapterData) GetVolume() string {
+	return chapter.Attributes.Volume
 }
 
-// ScanlationGroup returns scanlation group of chapter. Note that this requires
+// GetChapter returns chapter number of chapter, default is empty string.
+func (chapter ChapterData) GetChapter() string {
+	return chapter.Attributes.Chapter
+}
+
+// GetTitle returns title of chapter, default is empty string.
+func (chapter ChapterData) GetTitle() string {
+	return chapter.Attributes.Title
+}
+
+// GetLanguage returns language of chapter
+func (chapter ChapterData) GetLanguage() string {
+	return chapter.Attributes.TranslatedLanguage
+}
+
+// GetScanlationGroup returns scanlation group of chapter. Note that this requires
 // an additional parameter in chapter request and the function GetChapter does not
 // implements it. So this function is only useful with ChapterData gotten from
 // manga query where includeGroup is enabled.
-func (chapter ChapterData) ScanlationGroup() string {
-	for _, rel := range chapter.Data.Relationships {
+func (chapter ChapterData) GetScanlationGroup() string {
+	for _, rel := range chapter.Relationships {
 		if rel["type"].(string) == "scanlation_group" {
 			return rel["attributes"].(map[string]interface{})["name"].(string)
 		}
@@ -86,7 +105,7 @@ func (chapter ChapterData) ScanlationGroup() string {
 // GetPageUrls returns urls for all pages in the chapter.
 func (chapter ChapterData) GetPageUrls(dataSaver bool) ([]string, error) {
 	// Get base url
-	serverUrl := fmt.Sprintf("https://api.mangadex.org/at-home/server/%v", chapter.Data.Id)
+	serverUrl := fmt.Sprintf("https://api.mangadex.org/at-home/server/%v", chapter.Id)
 	resp, err := http.Get(serverUrl)
 	if err != nil {
 		return nil, err
@@ -106,14 +125,14 @@ func (chapter ChapterData) GetPageUrls(dataSaver bool) ([]string, error) {
 	var database []string
 	if dataSaver {
 		quality = "data-saver"
-		database = chapter.Data.Attributes.DataSaver
+		database = chapter.Attributes.DataSaver
 	} else {
 		quality = "data"
-		database = chapter.Data.Attributes.Data
+		database = chapter.Attributes.Data
 	}
 	var urls []string
 	for _, img := range database {
-		urls = append(urls, fmt.Sprintf("%v/%v/%v/%v", server.BaseUrl, quality, chapter.Data.Attributes.Hash, img))
+		urls = append(urls, fmt.Sprintf("%v/%v/%v/%v", server.BaseUrl, quality, chapter.Attributes.Hash, img))
 	}
 	return urls, nil
 }

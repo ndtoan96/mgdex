@@ -10,7 +10,7 @@ import (
 
 // MangaData represents data of manga gotten from manga feed api of mangadex. It does not
 // include information of author, artist,... since it only serves the purpose of getting chapters data
-type MangaData struct{ Results []ChapterData }
+type MangaData struct{ Data []ChapterData }
 
 type mangaQuery struct {
 	id           string

@@ -32,12 +32,7 @@ func commonBatchDownload(chapters ChapterList, dataSaver bool, prefix string, zi
 	c := make(chan error)
 	delay := len(chapters) > 40
 	for _, chapter := range chapters {
-		var database []string
-		if dataSaver {
-			database = chapter.Data.Attributes.DataSaver
-		} else {
-			database = chapter.Data.Attributes.Data
-		}
+		database := chapter.GetPageNames(dataSaver)
 
 		if page_cnt+len(database) > PAGE_LIMIT {
 			page_cnt = 0
@@ -57,12 +52,12 @@ func commonBatchDownload(chapters ChapterList, dataSaver bool, prefix string, zi
 				if ext == "" {
 					ext = "zip"
 				}
-				err = chapter.DownloadAsZip(dataSaver, prefix+chapter.Chapter()+"."+ext)
+				err = chapter.DownloadAsZip(dataSaver, prefix+chapter.GetChapter()+"."+ext)
 			} else {
-				err = chapter.Download(dataSaver, prefix+chapter.Chapter())
+				err = chapter.Download(dataSaver, prefix+chapter.GetChapter())
 			}
 			if err == nil {
-				println("Chapter " + chapter.Chapter() + " downloaded.")
+				println("Chapter " + chapter.GetChapter() + " downloaded.")
 			}
 			c <- err
 		}(chapter)

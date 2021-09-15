@@ -78,45 +78,45 @@ func (filter mangaFilter) PreferGroups(groups []string) *mangaFilter {
 // GetChapters returns list of chapter sastified the criterias.
 func (filter mangaFilter) GetChapters() (chapters ChapterList) {
 	chapterMap := make(map[string]*ChapterData)
-	for i, chapter := range filter.manga.Results {
-		old_chapter, exist := chapterMap[chapter.Chapter()]
+	for i, chapter := range filter.manga.Data {
+		old_chapter, exist := chapterMap[chapter.GetChapter()]
 		if exist {
 			if filter.preferGroups != nil {
-				old_group := strings.ToLower(old_chapter.ScanlationGroup())
-				new_group := strings.ToLower(chapter.ScanlationGroup())
+				old_group := strings.ToLower(old_chapter.GetScanlationGroup())
+				new_group := strings.ToLower(chapter.GetScanlationGroup())
 				if filter.preferGroups[old_group] < filter.preferGroups[new_group] {
-					chapterMap[chapter.Chapter()] = &filter.manga.Results[i]
+					chapterMap[chapter.GetChapter()] = &filter.manga.Data[i]
 				}
 			}
 			continue
 		}
 		isGood := true
 		if filter.volumes != nil {
-			_, exist := filter.volumes[chapter.Volume()]
+			_, exist := filter.volumes[chapter.GetVolume()]
 			isGood = isGood && exist
 		}
 		if filter.chapters != nil {
-			_, exist := filter.chapters[chapter.Chapter()]
+			_, exist := filter.chapters[chapter.GetChapter()]
 			isGood = isGood && exist
 		}
 		if filter.volumeRange != nil {
-			val, err := strconv.ParseFloat(chapter.Data.Attributes.Volume, 64)
+			val, err := strconv.ParseFloat(chapter.GetVolume(), 64)
 			isGood = isGood && err == nil && val >= filter.volumeRange[0] && val <= filter.volumeRange[1]
 		}
 		if filter.chapterRange != nil {
-			val, err := strconv.ParseFloat(chapter.Chapter(), 64)
+			val, err := strconv.ParseFloat(chapter.GetChapter(), 64)
 			isGood = isGood && err == nil && val >= filter.chapterRange[0] && val <= filter.chapterRange[1]
 		}
 		if isGood {
-			chapterMap[chapter.Chapter()] = &filter.manga.Results[i]
+			chapterMap[chapter.GetChapter()] = &filter.manga.Data[i]
 		}
 	}
 	for _, value := range chapterMap {
 		chapters = append(chapters, value)
 	}
 	sort.Slice(chapters, func(i, j int) bool {
-		chapter_i, _ := strconv.ParseFloat(chapters[i].Chapter(), 64)
-		chapter_j, _ := strconv.ParseFloat(chapters[j].Chapter(), 64)
+		chapter_i, _ := strconv.ParseFloat(chapters[i].GetChapter(), 64)
+		chapter_j, _ := strconv.ParseFloat(chapters[j].GetChapter(), 64)
 		return chapter_i < chapter_j
 	})
 	return
