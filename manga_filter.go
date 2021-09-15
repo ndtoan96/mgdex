@@ -50,14 +50,14 @@ func (filter mangaFilter) Chapters(chaps []string) *mangaFilter {
 }
 
 // VolumeRange specifies an inclusive range of volume
-func (filter mangaFilter) VolumeRange(rng [2]float64) *mangaFilter {
-	filter.volumeRange = &rng
+func (filter mangaFilter) VolumeRange(min float64, max float64) *mangaFilter {
+	filter.volumeRange = &[2]float64{min, max}
 	return &filter
 }
 
 // ChapterRange specifies an inclusive range of chapter
-func (filter mangaFilter) ChapterRange(rng [2]float64) *mangaFilter {
-	filter.chapterRange = &rng
+func (filter mangaFilter) ChapterRange(min float64, max float64) *mangaFilter {
+	filter.chapterRange = &[2]float64{min, max}
 	return &filter
 }
 
@@ -81,12 +81,19 @@ func (filter mangaFilter) GetChapters() (chapters ChapterList) {
 	for i, chapter := range filter.manga.Data {
 		old_chapter, exist := chapterMap[chapter.GetChapter()]
 		if exist {
-			if filter.preferGroups != nil {
-				old_group := strings.ToLower(old_chapter.GetScanlationGroup())
-				new_group := strings.ToLower(chapter.GetScanlationGroup())
-				if filter.preferGroups[old_group] < filter.preferGroups[new_group] {
-					chapterMap[chapter.GetChapter()] = &filter.manga.Data[i]
+			// if chapter is empty, replace with new one
+			old_empty := len(old_chapter.GetPageNames(false)) == 0
+			new_empty := len(chapter.GetPageNames(false)) == 0
+			if (old_empty && new_empty) || (!old_empty && !new_empty) {
+				if filter.preferGroups != nil && len(chapter.GetPageNames(false)) > 0 {
+					old_group := strings.ToLower(old_chapter.GetScanlationGroup())
+					new_group := strings.ToLower(chapter.GetScanlationGroup())
+					if filter.preferGroups[old_group] < filter.preferGroups[new_group] {
+						chapterMap[chapter.GetChapter()] = &filter.manga.Data[i]
+					}
 				}
+			} else if old_empty && !new_empty {
+				chapterMap[chapter.GetChapter()] = &filter.manga.Data[i]
 			}
 			continue
 		}

@@ -146,6 +146,10 @@ func (chapter ChapterData) Download(dataSaver bool, path string) error {
 		return err
 	}
 
+	if len(urls) == 0 {
+		return errors.New("Chapter " + chapter.GetChapter() + " is empty")
+	}
+
 	// Download images
 	err = imgdl.DownloadImgages(urls, filepath.Join(path, "page_"))
 	if err != nil {
@@ -160,6 +164,10 @@ func (chapter ChapterData) DownloadAsZip(dataSaver bool, path string) error {
 	urls, err := chapter.GetPageUrls(dataSaver)
 	if err != nil {
 		return err
+	}
+
+	if len(urls) == 0 {
+		return errors.New("Chapter " + chapter.GetChapter() + " is empty")
 	}
 
 	// Download images to zip

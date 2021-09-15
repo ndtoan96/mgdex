@@ -57,7 +57,7 @@ func commonBatchDownload(chapters ChapterList, dataSaver bool, prefix string, zi
 				err = chapter.Download(dataSaver, prefix+chapter.GetChapter())
 			}
 			if err == nil {
-				println("Chapter " + chapter.GetChapter() + " downloaded.")
+				log.Println("Chapter " + chapter.GetChapter() + " downloaded.")
 			}
 			c <- err
 		}(chapter)
