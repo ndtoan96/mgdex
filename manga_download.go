@@ -13,17 +13,18 @@ const (
 
 // Method Download downloads list of chapters. They will be named with format <prefix><chapter_number>.
 // 'prefix' can have parent folder, it will be created if not exist.
-func (chapters ChapterList) Download(dataSaver bool, prefix string) {
-	commonBatchDownload(chapters, dataSaver, prefix, false, "")
+func (chapters ChapterList) Download(dataSaver bool, prefix string) bool {
+	return commonBatchDownload(chapters, dataSaver, prefix, false, "")
 }
 
 // Method Download downloads list of chapters and zip them. They will be named with
 // format <prefix><chapter_number>.<ext>. 'prefix' can have parent folder, it will be created if not exist.
-func (chapters ChapterList) DownloadAsZip(dataSaver bool, prefix string, ext string) {
-	commonBatchDownload(chapters, dataSaver, prefix, true, ext)
+func (chapters ChapterList) DownloadAsZip(dataSaver bool, prefix string, ext string) bool {
+	return commonBatchDownload(chapters, dataSaver, prefix, true, ext)
 }
 
-func commonBatchDownload(chapters ChapterList, dataSaver bool, prefix string, zip bool, ext string) {
+func commonBatchDownload(chapters ChapterList, dataSaver bool, prefix string, zip bool, ext string) bool {
+	is_ok := true
 	if len(chapters) == 0 {
 		log.Println("Chapter list is empty")
 	}
@@ -69,8 +70,10 @@ func commonBatchDownload(chapters ChapterList, dataSaver bool, prefix string, zi
 	for c_cnt > 0 {
 		err := <-c
 		if err != nil {
+			is_ok = false
 			log.Println(err)
 		}
 		c_cnt--
 	}
+	return is_ok
 }
