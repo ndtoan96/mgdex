@@ -77,7 +77,7 @@ func DownloadImgage(url string, path string) error {
 	return nil
 }
 
-// DownloadImagesZip asychronously donwloads multiple images at once and write to a folder.
+// DownloadImages asychronously donwloads multiple images at once and write to a folder.
 func DownloadImgages(urls []string, prefix string) error {
 	// Spawn go routines to download images
 	c := make(chan error)
@@ -109,7 +109,7 @@ func DownloadImgages(urls []string, prefix string) error {
 func DownloadImagesZip(urls []string, path, prefix string) error {
 	// Create parent folders
 	parent := filepath.Dir(path)
-	err := os.MkdirAll(parent, fs.ModeDir)
+	err := os.MkdirAll(parent, 0666)
 	if err != nil {
 		return err
 	}
