@@ -109,7 +109,7 @@ func DownloadImgages(urls []string, prefix string) error {
 func DownloadImagesZip(urls []string, path, prefix string) error {
 	// Create parent folders
 	parent := filepath.Dir(path)
-	err := os.MkdirAll(parent, 0666)
+	err := os.MkdirAll(parent, 0777)
 	if err != nil {
 		return err
 	}
