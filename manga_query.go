@@ -119,3 +119,13 @@ func (q mangaQuery) GetManga() (*MangaData, error) {
 
 	return &manga, nil
 }
+
+// Length returns number of chapters in manga data
+func (manga MangaData) Length() int {
+	return len(manga.Data)
+}
+
+// Append adds chapter data from m2 to m1
+func (m1 *MangaData) Append(m2 MangaData) {
+	m1.Data = append(m1.Data, m2.Data...)
+}

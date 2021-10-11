@@ -67,3 +67,21 @@ func Test_Manga_Fail(t *testing.T) {
 		t.FailNow()
 	}
 }
+
+func Test_Manga_Length_and_Append(t *testing.T) {
+	m1 := MangaData{}
+	if m1.Length() != 0 {
+		t.FailNow()
+	}
+	c1 := ChapterData{}
+	c2 := ChapterData{}
+	c3 := ChapterData{}
+	m2 := MangaData{Data: []ChapterData{c1, c2, c3}}
+	if m2.Length() != 3 {
+		t.FailNow()
+	}
+	m1.Append(m2)
+	if m1.Length() != 3 {
+		t.FailNow()
+	}
+}
