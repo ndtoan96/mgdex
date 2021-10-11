@@ -80,7 +80,7 @@ func Test_Manga_Length_and_Append(t *testing.T) {
 	if m2.Length() != 3 {
 		t.FailNow()
 	}
-	m1.Append(m2)
+	m1.Append(&m2)
 	if m1.Length() != 3 {
 		t.FailNow()
 	}

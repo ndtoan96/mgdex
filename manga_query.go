@@ -126,6 +126,6 @@ func (manga MangaData) Length() int {
 }
 
 // Append adds chapter data from m2 to m1
-func (m1 *MangaData) Append(m2 MangaData) {
+func (m1 *MangaData) Append(m2 *MangaData) {
 	m1.Data = append(m1.Data, m2.Data...)
 }
