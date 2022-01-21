@@ -20,16 +20,19 @@ type ChapterData struct {
 		Volume             string
 		Chapter            string
 		Title              string
-		Hash               string
-		Data               []string
-		DataSaver          []string
 		TranslatedLanguage string
+		Pages              uint
 	}
 	Relationships []map[string]interface{}
 }
 
 type serverData struct {
 	BaseUrl string
+	Chapter struct {
+		Hash      string
+		Data      []string
+		DataSaver []string
+	}
 }
 
 // GetChapter send request to mangadex api and get back chapter data.
@@ -59,16 +62,6 @@ func (chapter ChapterData) GetId() string {
 	return chapter.Id
 }
 
-// GetPageNames return file name of every pages in the chapter database, file name can be combined with server baseUrl
-// to form the url of the page
-func (chapter ChapterData) GetPageNames(dataSaver bool) []string {
-	if dataSaver {
-		return chapter.Attributes.DataSaver
-	} else {
-		return chapter.Attributes.Data
-	}
-}
-
 // GetVolume returns volume number of chapter, default is empty string.
 func (chapter ChapterData) GetVolume() string {
 	return chapter.Attributes.Volume
@@ -87,6 +80,11 @@ func (chapter ChapterData) GetTitle() string {
 // GetLanguage returns language of chapter
 func (chapter ChapterData) GetLanguage() string {
 	return chapter.Attributes.TranslatedLanguage
+}
+
+// GetPages returns number of pages in the chapter
+func (chapter ChapterData) GetPages() uint {
+	return chapter.Attributes.Pages
 }
 
 // GetScanlationGroup returns scanlation group of chapter. Note that this requires
@@ -125,14 +123,14 @@ func (chapter ChapterData) GetPageUrls(dataSaver bool) ([]string, error) {
 	var database []string
 	if dataSaver {
 		quality = "data-saver"
-		database = chapter.Attributes.DataSaver
+		database = server.Chapter.DataSaver
 	} else {
 		quality = "data"
-		database = chapter.Attributes.Data
+		database = server.Chapter.Data
 	}
 	var urls []string
 	for _, img := range database {
-		urls = append(urls, fmt.Sprintf("%v/%v/%v/%v", server.BaseUrl, quality, chapter.Attributes.Hash, img))
+		urls = append(urls, fmt.Sprintf("%v/%v/%v/%v", server.BaseUrl, quality, server.Chapter.Hash, img))
 	}
 	return urls, nil
 }

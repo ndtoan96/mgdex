@@ -28,14 +28,14 @@ func commonBatchDownload(chapters ChapterList, dataSaver bool, prefix string, zi
 	if len(chapters) == 0 {
 		log.Println("Chapter list is empty")
 	}
-	page_cnt := 0
-	c_cnt := 0
+	page_cnt := uint(0)
+	c_cnt := uint(0)
 	c := make(chan error)
 	delay := len(chapters) > 40
 	for _, chapter := range chapters {
-		database := chapter.GetPageNames(dataSaver)
+		num_pages := chapter.GetPages()
 
-		if page_cnt+len(database) > PAGE_LIMIT {
+		if page_cnt+num_pages > PAGE_LIMIT {
 			page_cnt = 0
 			for c_cnt > 0 {
 				err := <-c
@@ -46,7 +46,7 @@ func commonBatchDownload(chapters ChapterList, dataSaver bool, prefix string, zi
 			}
 		}
 
-		page_cnt = page_cnt + len(database)
+		page_cnt = page_cnt + num_pages
 		go func(chapter *ChapterData) {
 			var err error
 			if zip {

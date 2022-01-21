@@ -82,10 +82,10 @@ func (filter mangaFilter) GetChapters() (chapters ChapterList) {
 		old_chapter, exist := chapterMap[chapter.GetChapter()]
 		if exist {
 			// if chapter is empty, replace with new one
-			old_empty := len(old_chapter.GetPageNames(false)) == 0
-			new_empty := len(chapter.GetPageNames(false)) == 0
+			old_empty := old_chapter.GetPages() == 0
+			new_empty := chapter.GetPages() == 0
 			if (old_empty && new_empty) || (!old_empty && !new_empty) {
-				if filter.preferGroups != nil && len(chapter.GetPageNames(false)) > 0 {
+				if filter.preferGroups != nil && chapter.GetPages() > 0 {
 					old_group := strings.ToLower(old_chapter.GetScanlationGroup())
 					new_group := strings.ToLower(chapter.GetScanlationGroup())
 					if filter.preferGroups[old_group] < filter.preferGroups[new_group] {
