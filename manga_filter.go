@@ -79,9 +79,12 @@ func (filter mangaFilter) PreferGroups(groups []string) *mangaFilter {
 func (filter mangaFilter) GetChapters() (chapters ChapterList) {
 	chapterMap := make(map[string]*ChapterData)
 	for i, chapter := range filter.manga.Data {
+		// Parsed chapter is stored in a map, if chapter with same name already exists in map,
+		// compare it with the current parsed chapter by these criteria:
+		// - skip whichever is empty
+		// - skip one with lower priority of scanlation group
 		old_chapter, exist := chapterMap[chapter.GetChapter()]
 		if exist {
-			// if chapter is empty, replace with new one
 			old_empty := old_chapter.GetPages() == 0
 			new_empty := chapter.GetPages() == 0
 			if (old_empty && new_empty) || (!old_empty && !new_empty) {
@@ -97,7 +100,8 @@ func (filter mangaFilter) GetChapters() (chapters ChapterList) {
 			}
 			continue
 		}
-		isGood := true
+
+		isGood := true // this flag indicates the current parsed chapter sastifies all criterias
 		if filter.volumes != nil {
 			_, exist := filter.volumes[chapter.GetVolume()]
 			isGood = isGood && exist
@@ -115,12 +119,17 @@ func (filter mangaFilter) GetChapters() (chapters ChapterList) {
 			isGood = isGood && err == nil && val >= filter.chapterRange[0] && val <= filter.chapterRange[1]
 		}
 		if isGood {
+			// the chapter sastified all criterias, save it in the map
 			chapterMap[chapter.GetChapter()] = &filter.manga.Data[i]
 		}
 	}
+
+	// convert map to list
 	for _, value := range chapterMap {
 		chapters = append(chapters, value)
 	}
+
+	// sort list by ascending order
 	sort.Slice(chapters, func(i, j int) bool {
 		chapter_i, _ := strconv.ParseFloat(chapters[i].GetChapter(), 64)
 		chapter_j, _ := strconv.ParseFloat(chapters[j].GetChapter(), 64)
