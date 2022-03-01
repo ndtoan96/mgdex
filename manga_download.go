@@ -1,7 +1,9 @@
 package mgdex
 
 import (
+	"fmt"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -32,7 +34,7 @@ func commonBatchDownload(chapters ChapterList, dataSaver bool, prefix string, zi
 	c_cnt := uint(0)
 	c := make(chan error)
 	delay := len(chapters) > 40
-	for _, chapter := range chapters {
+	for id, chapter := range chapters {
 		num_pages := chapter.GetPages()
 
 		if page_cnt+num_pages > PAGE_LIMIT {
@@ -46,6 +48,7 @@ func commonBatchDownload(chapters ChapterList, dataSaver bool, prefix string, zi
 			}
 		}
 
+		prefix = strings.Replace(prefix, "#id#", fmt.Sprintf("%04d", id), -1)
 		page_cnt = page_cnt + num_pages
 		go func(chapter *ChapterData) {
 			var err error
