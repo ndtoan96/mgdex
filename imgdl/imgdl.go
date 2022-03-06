@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -94,7 +93,7 @@ func DownloadImgages(urls []string, prefix string) error {
 		select {
 		case err := <-c:
 			if err != nil {
-				log.New(os.Stderr, "", 0).Printf("%v", err)
+				return err
 			}
 		case <-time.After(TIMEOUT_SEC * time.Second):
 			return errors.New("timeout")
@@ -144,19 +143,16 @@ func DownloadImagesZip(urls []string, path, prefix string) error {
 		select {
 		case res := <-c:
 			if res.err != nil {
-				log.New(os.Stderr, "", 0).Printf("%v", res.err)
-				continue
+				return res.err
 			}
 			// Write data to file in archive
 			page, err := writer.Create(fmt.Sprintf("%v%02d.%v", prefix, res.idx, res.ext))
 			if err != nil {
-				log.New(os.Stderr, "", 0).Printf("%v", err)
-				continue
+				return err
 			}
 			_, err = io.Copy(page, *res.data)
 			if err != nil {
-				log.New(os.Stderr, "", 0).Printf("%v", err)
-				continue
+				return err
 			}
 		case <-time.After(TIMEOUT_SEC * time.Second):
 			return errors.New("timeout")
