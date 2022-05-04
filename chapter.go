@@ -45,7 +45,7 @@ func GetChapter(id string) (*ChapterData, error) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		return nil, errors.New(fmt.Sprintf("error getting %v, %v", url, resp.Status))
+		return nil, fmt.Errorf("error getting %v, %v", url, resp.Status)
 	}
 
 	// Deserialize chapter json response to struct
@@ -110,7 +110,7 @@ func (chapter ChapterData) GetPageUrls(dataSaver bool) ([]string, error) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		return nil, errors.New(fmt.Sprintf("error getting %v: %v", serverUrl, resp.Status))
+		return nil, fmt.Errorf("error getting %v: %v", serverUrl, resp.Status)
 	}
 	var server serverData
 	err = json.NewDecoder(resp.Body).Decode(&server)
@@ -145,7 +145,7 @@ func (chapter ChapterData) Download(dataSaver bool, path string) error {
 	}
 
 	if len(urls) == 0 {
-		return errors.New("Chapter " + chapter.GetChapter() + " is empty")
+		return errors.New("chapter " + chapter.GetChapter() + " is empty")
 	}
 
 	// Download images
@@ -165,7 +165,7 @@ func (chapter ChapterData) DownloadAsZip(dataSaver bool, path string) error {
 	}
 
 	if len(urls) == 0 {
-		return errors.New("Chapter " + chapter.GetChapter() + " is empty")
+		return errors.New("chapter " + chapter.GetChapter() + " is empty")
 	}
 
 	// Download images to zip
@@ -175,4 +175,13 @@ func (chapter ChapterData) DownloadAsZip(dataSaver bool, path string) error {
 	}
 
 	return nil
+}
+
+func (chapter ChapterData) GetMangaId() (string, error) {
+	for _, m := range chapter.Relationships {
+		if val, ok := m["type"]; ok && val.(string) == "manga" {
+			return m["id"].(string), nil
+		}
+	}
+	return "", errors.New("manga id not found")
 }

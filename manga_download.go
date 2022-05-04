@@ -58,7 +58,7 @@ func commonBatchDownload(chapters ChapterList, dataSaver bool, prefix string, zi
 		// spawn download goroutine
 		go func(chapter *ChapterData, id int) {
 			var err error
-			extended_prefix := strings.Replace(prefix, "?id", fmt.Sprintf("%04d", id), -1)
+			extended_prefix := strings.Replace(prefix, ":id", fmt.Sprintf("%04d", id), -1)
 			if zip {
 				if ext == "" {
 					ext = "zip"
